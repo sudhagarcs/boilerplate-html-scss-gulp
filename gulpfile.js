@@ -27,6 +27,16 @@ const constant = {
   BUILD_JS_PATH: "build/assets/js"
 };
 
+const sassOptions = {
+  errLogToConsole: true,
+  outputStyle: "expanded"
+};
+
+const prefixerOptions = {
+  overrideBrowserslist: ["last 2 version", "> 1%"],
+  cascade: false
+};
+
 // BrowserSync Init
 function browserSync(done) {
   browsersync.init({
@@ -53,15 +63,14 @@ function cssTask() {
   return gulp
     .src(constant.SRC_SCSS_PATH + "**/*.scss")
     .pipe(plumber())
-    .pipe(
-      sass({
-        outputStyle: "expanded"
-      })
-    )
+    .pipe(sourcemaps.init())
+    .pipe(sass(sassOptions).on("error", sass.logError))
+    .pipe(autoprefixer(prefixerOptions))
     .pipe(rename("main.css"))
     .pipe(gulp.dest(constant.BUILD_CSS_PATH))
     .pipe(cleancss())
     .pipe(rename({ suffix: ".min" }))
+    .pipe(sourcemaps.write("./"))
     .pipe(gulp.dest(constant.BUILD_CSS_PATH));
 }
 
